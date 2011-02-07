@@ -1,0 +1,23 @@
+#!/bin/sh
+#Author: Kesavan Rengarajan
+#15-Jan-2010
+delay=`mysql ${mysqlopts} -e 'show slave status \G' | grep 'Seconds_Behind_Master' | tr -s " " | cut  -d" " -f 3`;
+if [ "$delay" =  'NULL' ] ; then
+`echo 'dbXX: slave IO thread not running' | mail -s 'Munin notification' server.alerts@company.com`
+exit 1;
+fi;
+if [ "$1" = "config" ]; then
+    echo 'graph_title MySQL Slave Delay'
+    echo "graph_args --base 1000 -l 0"
+    echo "graph_vlabel Seconds";
+    echo "graph_scale no"
+    echo "graph_category mysql"
+    echo "mysql_slave_delay.warning 30"
+    echo "mysql_slave_delay.critical 90"
+    echo "mysql_slave_delay.label mysql_slave_delay"
+    echo "mysql_slave_delay.info Number of seconds that the slave has been behind the master for."
+    exit 0;
+fi;
+echo -n "mysql_slave_delay.value ";
+echo $delay;
+exit 0
