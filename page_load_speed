@@ -1,0 +1,23 @@
+#!/bin/sh
+#Author: Kesavan Rengarajan
+#06-Feb-2011
+profile_uri='http://example.com/page_to_be_profiled.test'
+page_load_time=$( { /usr/bin/time --format="%e" wget -q "$profile_uri"; } 2>&1 )
+if [ "$?" -ne "0" ] ; then
+`echo 'Cannot access profiled URI' | mail -s 'Munin notification' server.alerts@company.com`
+exit 1;
+fi;
+if [ "$1" = "config" ]; then
+    echo 'graph_title Page_Profiler'
+    echo "graph_args --base 1000 -l 0"
+    echo "graph_vlabel Seconds";
+    echo "graph_scale no"
+    echo "graph_category app"
+    echo "page_load_speed.warning 5"
+    echo "page_load_speed.critical 15"
+    echo "page_load_speed.label page_load_speed"
+    echo "page_load_speed.info Number of seconds taken to load the profiled page"
+    exit 0;
+fi;
+echo "page_load_speed.value $page_load_time";
+exit 0
