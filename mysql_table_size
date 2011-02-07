@@ -1,0 +1,39 @@
+#!/bin/sh
+#Author: Kesavan Rengarajan
+#07-Feb-2011
+#sql was derived from here: http://www.mysqlperformanceblog.com/2008/02/04/finding-out-largest-tables-on-mysql#-server/
+
+clean_name() {
+    local cleaned=$(echo $1 | sed 's/[^A-Za-z0-9_]/_/g')
+    echo "$cleaned"
+}
+
+if [ "$1" = "config" ]; then
+    echo 'graph_title MySQL Table Size'
+    echo "graph_args -l 0"
+    echo "graph_vlabel Size";
+    echo "graph_category mysql"
+    mysql "${mysqlopts}" -e "SELECT CONCAT(table_schema, '.', table_name),
+       ROUND(( data_length + index_length ) / ( 1024 * 1024 * 1024 ), 2) total_size
+FROM   information_schema.TABLES
+ORDER  BY data_length + index_length DESC
+LIMIT  10;" | sed "1d" | while read table size; do 
+    cleaned_name=$(clean_name $table)
+    echo "$cleaned_name.label $cleaned_name"
+    echo "$cleaned_name.warning 9"
+    echo "$cleaned_name.critical 10"
+    done
+    echo "mysql_table_size.info Size of Tables in GB"
+    exit 0;
+fi;
+
+mysql "${mysqlopts}" -e "SELECT CONCAT(table_schema, '.', table_name),
+       ROUND(( data_length + index_length ) / ( 1024 * 1024 * 1024 ), 2) total_size
+FROM   information_schema.TABLES
+ORDER  BY data_length + index_length DESC
+LIMIT  10;" | sed "1d" | while read table size; 
+do 
+    cleaned_name=$(clean_name $table)
+    echo "$cleaned_name.value $size"
+done
+exit 0;
