@@ -3,7 +3,7 @@
 #15-Jan-2010
 delay=`mysql ${mysqlopts} -e 'show slave status \G' | grep 'Seconds_Behind_Master' | tr -s " " | cut  -d" " -f 3`;
 if [ "$delay" =  'NULL' ] ; then
-`echo 'dbXX: slave IO thread not running' | mail -s 'Munin notification' server.alerts@company.com`
+echo 'dbXX: slave IO thread not running' | mail -s 'Munin notification' server.alerts@company.com
 exit 1;
 fi;
 if [ "$1" = "config" ]; then
