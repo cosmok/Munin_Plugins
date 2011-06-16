@@ -2,7 +2,7 @@
 #Author: Kesavan Rengarajan
 #06-Feb-2011
 profile_uri='http://example.com/page_to_be_profiled.test'
-page_load_time=$( { /usr/bin/time --format="%e" wget -q "$profile_uri" -O /dev/null ; } 2>&1 )
+page_load_time=$( { /usr/bin/time --format="%e" wget --no-cache -q "$profile_uri" -O /dev/null ; } 2>&1 )
 if [ "$?" -ne "0" ] ; then
 `echo 'Cannot access profiled URI' | mail -s 'Munin notification' server.alerts@company.com`
 exit 1;
